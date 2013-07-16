@@ -1,0 +1,4 @@
+includeLibs.Tx_PdfTemplate_cObj = EXT:pdftemplate/Classes/Utility/Pdf/ContentObject.php
+
+plugin.Tx_PdfTemplate_cObj = USER_INT
+plugin.Tx_PdfTemplate_cObj.userFunc = Tx_Pdftemplate_Utility_Pdf_ContentObject->main
