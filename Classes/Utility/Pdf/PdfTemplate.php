@@ -124,7 +124,7 @@
 		}
 
 		/**
-		 * sets the font to be useds
+		 * sets the font to be useds be aware your are limite to fonts included by fpdf
 		 * @param  string $fontname the fontname 
 		 * @return void     
 		 */
@@ -148,7 +148,7 @@
 		}
 
 		/**
-		 * renders a text
+		 * renders a text block
 		 * @param  float $x     the X postion
 		 * @param  float $y     the Y position
 		 * @param  mixed $lines string/array of lines to be rendered
