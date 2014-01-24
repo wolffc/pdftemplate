@@ -11,7 +11,7 @@
 		 */
 		protected  $content ='';
 		/**
-		 * the Typoscript Configuration array 
+		 * the Typoscript Configuration array
 		 * @var array
 		 */
 		protected  $typoscript;
@@ -19,27 +19,39 @@
 		 * The current Page we are Working on
 		 * @var integer
 		 */
+
+		/**
+		 * The current Page number
+		 * @var integer
+		 */
 		protected $page = 0;
 
+		/**
+		 * the Page Count of the Document
+		 * @var integer
+		 */
 		protected $pageCount = 0;
 
-		protected $objectManager;
 		/**
-		 * [$pdf description]
-		 * @var [type]
+		 * Objectmanger
+		 * @var Tx_Extbase_Object_ObjectManager
+		 */
+		protected $objectManager;
+
+		/**
+		 * The PDF Template Rendering Class
+		 * @var Tx_Pdftemplate_Utility_Pdf_PdfTemplate
 		 */
 		protected $pdfTemplate;
-
-		protected $contentObject;
 
 		/**
 		 * Intializize the Object Data
 		 * @return NULL
 		 */
 		public function init(){
+			//t3lib_div::debug($this->cObj,'init');
 			$this->objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager');
-			$this->contentObject = $this->objectManager->get('tslib_cObj');
-		
+			//$this->contentObject = $this->objectManager->get('tslib_cObj');
 			// Just fetch the dummy class with a prefix name as this makes shure the ext_autoload file is loaded on Typo3 4.5 (fixed in 4.6)
 			$this->objectManager->get('tx_Pdftemplate_autoloaderdummy');
 
@@ -51,31 +63,31 @@
 		 * @return boolean returns true if everything is fine false if an error occured writes error message to $this->content
 		 */
 		protected function initTyposcriptConfiguration(){
-
 			/* TemplatePdf */
-			$this->typoscript['templatePdf'] = $this->contentObject->stdWrap($this->typoscript['templatePdf'],$this->typoscript['templatePdf.']);
+			$this->typoscript['templatePdf'] = $this->cObj->stdWrap($this->typoscript['templatePdf'],$this->typoscript['templatePdf.']);
 			$this->typoscript['templatePdf'] = t3lib_div::getFileAbsFileName($this->typoscript['templatePdf']);
+
 			if(empty($this->typoscript['templatePdf'])){
 				$this->showError('empty template file Given check your typoscript configuration','templatePdf');
 			 return false;
 			}
 
 			/* renderedPdfStorageFolder */
-			$this->typoscript['renderedPdfStorageFolder'] = $this->contentObject->stdWrap($this->typoscript['renderedPdfStorageFolder'],$this->typoscript['renderedPdfStorageFolder.']);
+			$this->typoscript['renderedPdfStorageFolder'] = $this->cObj->stdWrap($this->typoscript['renderedPdfStorageFolder'],$this->typoscript['renderedPdfStorageFolder.']);
 			if(empty($this->typoscript['renderedPdfStorageFolder'])){
 				$this->showError('no Storage FolderGiven','renderedPdfStorageFolder');
 				return false;
 			}
 
-			$this->typoscript['fileNameFormat'] = $this->contentObject->stdWrap($this->typoscript['fileNameFormat'],$this->typoscript['fileNameFormat.']);
+
+			$this->typoscript['fileNameFormat'] = $this->cObj->stdWrap($this->typoscript['fileNameFormat'],$this->typoscript['fileNameFormat.']);
 			if(empty($this->typoscript['fileNameFormat'])){
 				$this->showError('no Fileformat String given','fileNameFormat');
 				return false;
-			} 
-			
+			}
 			$fileformatReplace = array(
-					'###DD###'=>date('d'), 
-					'###D###'=>date('j'), 
+					'###DD###'=>date('d'),
+					'###D###'=>date('j'),
 					'###MM###' =>date('m'),
 					'###M###' =>date('m'),
 					'###YYYY###' => date('Y'),
@@ -86,23 +98,23 @@
 					'###HASH16###' => substr(md5(time().microtime().mt_rand()), 0,16),
 					'###HASH32###' => md5(time().microtime().mt_rand()),
 					'###HASH64###' => md5(time().microtime().mt_rand()) . md5(time().microtime().mt_rand()),
+					'###BASENAME###' => basename($this->typoscript['templatePdf']),
 				);
-			$this->typoscript['fileNameFormat'] = strtr($this->typoscript['fileNameFormat'],$fileformatReplace) .'.pdf';
+			$this->typoscript['fileNameFormat'] = strtr($this->typoscript['fileNameFormat'],$fileformatReplace);
 			if($this->typoscript['fileNameFormat']=='.pdf'){
 				$this->showError('invalid Filename Format');
 				return false;
-			} 
+			}
 
 
 			if(!array_key_exists('renderConfiguration.', $this->typoscript) or !is_array($this->typoscript['renderConfiguration.'])){
 				$this->showError('no Render configuration','renderConfiguration');
 				return false;
-			} 
-			
+			}
 			switch($this->typoscript['returnFormat']) {
 				case 'filename':
 				case 'relative':
-					break; 
+					break;
 				default:
 					$this->typoscript['returnFormat'] = 'absolute';
 			}
@@ -118,12 +130,13 @@
 		 * @return string             the html output usaly the link to the file or the error message
 		 */
 		public function main($content,$typoscript){
-
 			$this->typoscript = $typoscript;
+			// t3lib_div::debug($this->typoscript,'enter main');
 			$this->content = $content;
 			$this->init();
 
 			if($this->initTyposcriptConfiguration()){
+				// t3lib_div::debug($this->typoscript);
 				$this->pageCount = $this->pdfTemplate->loadPDF($this->typoscript['templatePdf']);
 				if($this->pageCount == 0){
 					$this->content .=' Page Count 0';
@@ -142,12 +155,20 @@
 				$output['filename'] = $this->typoscript['fileNameFormat'];
 				$output['relative'] = $this->typoscript['renderedPdfStorageFolder'] . $output['filename'];
 				$output['absolute'] = t3lib_div::getFileAbsFileName($output['relative']);
+				$outputFilename = $output[$this->typoscript['returnFormat']];
+				// t3lib_div::debug($output,'output');
 
-				$this->pdfTemplate->writeAndClose($output[$this->typoscript['returnFormat']]);
+				if(
+				array_key_exists('createFolders', $this->typoscript)
+				&& $this->typoscript['createFolders']
+				&& file_exists(dirname($output['absolute']))
+				){
+					mkdir(dirname($output['absolute']),0777,true);
+				}
+				$this->pdfTemplate->writeAndClose($outputFilename);
 				$this->content.= $output[$this->typoscript['returnFormat']];
 			}
 			return $this->content;
-	  
 		}
 
 		/**
@@ -164,7 +185,7 @@
 		/**
 		 * renders a single Text Element on page
 		 * @param  array $element typoscript configuration Array for a text element on page
-		 * @return void          
+		 * @return void
 		 */
 		protected function renderElement($element){
 			if(!array_key_exists('lines.',$element)){
@@ -173,17 +194,17 @@
 			$lines = array();
 			foreach ($element['lines.'] as $theKey =>$theConf){
 				if (intval($theKey) && !strstr($theKey, '.')){
-					$lines[] = $this->contentObject->stdWrap($element['lines.'][$theKey],$element['lines.'][$theKey.'.']);
+					$lines[] = $this->cObj->stdWrap($element['lines.'][$theKey],$element['lines.'][$theKey.'.']);
 				}
 			}
 
-			$xPosition = intval($this->contentObject->stdWrap($element['X'],$element['X.']));
-			$yPosition = intval($this->contentObject->stdWrap($element['Y'],$element['Y.']));
-			$size = $this->contentObject->stdWrap($element['size'],$element['size.']);
+			$xPosition = intval($this->cObj->stdWrap($element['X'],$element['X.']));
+			$yPosition = intval($this->cObj->stdWrap($element['Y'],$element['Y.']));
+			$size = $this->cObj->stdWrap($element['size'],$element['size.']);
 			if(!empty($size)){
 				$this->pdfTemplate->setFontSize($size);
 			}
-			$lineheight = $this->contentObject->stdWrap($element['lineheight'],$element['lineheight.']);
+			$lineheight = $this->cObj->stdWrap($element['lineheight'],$element['lineheight.']);
 			if(!empty($lineheight)){
 				$this->pdfTemplate->setLineheight($lineheight);
 			}
@@ -200,9 +221,5 @@
 			$this->content .= '<p>'. htmlentities($message) .'</p>';
 			$this->content .= '</div>';
 		}
-
-		
-			
 	}
-
 ?>

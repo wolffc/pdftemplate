@@ -24,7 +24,7 @@
 		protected $fontname = 'Arial';
 
 		/**
-		 * fontsize 
+		 * fontsize
 		 * @var float
 		 */
 		protected $fontSize = 8;
@@ -48,7 +48,7 @@
 		/**
 		 * Injects the ObjectManager
 		 * @param  Tx_Extbase_Object_ObjectManager $objectManager Extbase Object Manager
-		 * @return void                                         
+		 * @return void
 		 */
 		public function injectObjectManager(Tx_Extbase_Object_ObjectManager $objectManager){
 			$this->objectManager = $objectManager;
@@ -57,12 +57,12 @@
 		/**
 		 * injects the pdf writing class
 		 * @param  fpdi   $pdf the pdfwriting class
-		 * @return void      
+		 * @return void
 		 */
 		public function injectPDF(fpdi $pdf){
 			$this->pdf = $pdf;
 		}
-	
+
 		/**
 		 * loads a PDF as Template
 		 * @param  string $filename the pdf file to open
@@ -78,6 +78,7 @@
     		//$this->nextPage(); // opening first page
     		return $this->pageCount;
 		}
+
 		/**
 		 * writes the the Generated PDF to an file
 		 * @param  string $filename filename to Write
@@ -94,16 +95,14 @@
 		 */
 		public function nextPage(){
 			if($this->page < $this->pageCount){
-				$this->page++;				
+				$this->page++;
 				$templateIndex = $this->pdf->importPage($this->page,'/MediaBox');
 				$this->pdf->addPage();
       			$this->pdf->useTemplate($templateIndex, 0, 0);
-      			
 				return $this->page;
 			}else{
 				return false;
 			}
-
 		}
 
 		/**
@@ -125,15 +124,14 @@
 
 		/**
 		 * sets the font to be useds be aware your are limite to fonts included by fpdf
-		 * @param  string $fontname the fontname 
-		 * @return void     
+		 * @param  string $fontname the fontname
+		 * @return void
 		 */
 		public function setfont($fontname){
 			$this->fontname = $fontname;
 			if($this->pdf){
 				$this->pdf->setFont($this->fontname);
 			}
-
 		}
 
 		/**
@@ -152,7 +150,7 @@
 		 * @param  float $x     the X postion
 		 * @param  float $y     the Y position
 		 * @param  mixed $lines string/array of lines to be rendered
-		 * @return void       
+		 * @return void
 		 */
 		public function renderText($x,$y,$lines){
 			if(!is_array($lines)){
@@ -163,12 +161,6 @@
 				$this->pdf->text($x,$y,$line);
 				$y += $this->getLineHeightInMillimeter();
 			}
-		
 		}
-
-
-
-
 	}
-
 ?>
