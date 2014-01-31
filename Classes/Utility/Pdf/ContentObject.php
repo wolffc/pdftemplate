@@ -151,24 +151,33 @@
 					$this->pdfTemplate->nextPage();
 				}
 
-				$output = array();
-				$output['filename'] = $this->typoscript['fileNameFormat'];
-				$output['relative'] = $this->typoscript['renderedPdfStorageFolder'] . $output['filename'];
-				$output['absolute'] = t3lib_div::getFileAbsFileName($output['relative']);
-				$outputFilename = $output[$this->typoscript['returnFormat']];
-				// t3lib_div::debug($output,'output');
-
-				if(
-				array_key_exists('createFolders', $this->typoscript)
-				&& $this->typoscript['createFolders']
-				&& file_exists(dirname($output['absolute']))
-				){
-					mkdir(dirname($output['absolute']),0777,true);
-				}
-				$this->pdfTemplate->writeAndClose($outputFilename);
-				$this->content.= $output[$this->typoscript['returnFormat']];
+				$this->content .= $this->writeFile();
 			}
 			return $this->content;
+		}
+
+		/**
+		 * writes the PDF file To Disk
+		 * @return string the output file
+		 */
+		protected function writeFile(){
+			$output = array();
+			$output['filename'] = $this->typoscript['fileNameFormat'];
+			$output['relative'] = $this->typoscript['renderedPdfStorageFolder'] . $output['filename'];
+			$output['absolute'] = t3lib_div::getFileAbsFileName($output['relative']);
+			$outputFilename = $output[$this->typoscript['returnFormat']];
+
+			if(
+			array_key_exists('createFolders', $this->typoscript)
+			&& $this->typoscript['createFolders']
+			&& !file_exists(dirname($output['absolute']))
+			){
+				//t3lib_div::debug('create folders');
+				mkdir(dirname($output['absolute']),0777,true);
+			}
+			$this->pdfTemplate->writeAndClose($output['absolute']);
+			return $outputFilename;
+
 		}
 
 		/**
