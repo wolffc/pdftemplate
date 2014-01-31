@@ -30,7 +30,7 @@ this can be done via a cObject with Typoscript or via an Extbase Class.
 	'modify_tables' => '',
 	'clearCacheOnLoad' => 0,
 	'lockType' => '',
-	'version' => '0.0.1',
+	'version' => '1.0.0',
 	'constraints' => array(
 		'depends' => array(
 			'extbase' => '1.3',
