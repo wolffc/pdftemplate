@@ -49,7 +49,6 @@
 		 * @return NULL
 		 */
 		public function init(){
-			//t3lib_div::debug($this->cObj,'init');
 			$this->objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager');
 			//$this->contentObject = $this->objectManager->get('tslib_cObj');
 			// Just fetch the dummy class with a prefix name as this makes shure the ext_autoload file is loaded on Typo3 4.5 (fixed in 4.6)
@@ -131,12 +130,10 @@
 		 */
 		public function main($content,$typoscript){
 			$this->typoscript = $typoscript;
-			// t3lib_div::debug($this->typoscript,'enter main');
 			$this->content = $content;
 			$this->init();
 
 			if($this->initTyposcriptConfiguration()){
-				// t3lib_div::debug($this->typoscript);
 				$this->pageCount = $this->pdfTemplate->loadPDF($this->typoscript['templatePdf']);
 				if($this->pageCount == 0){
 					$this->content .=' Page Count 0';
@@ -172,7 +169,6 @@
 			&& $this->typoscript['createFolders']
 			&& !file_exists(dirname($output['absolute']))
 			){
-				//t3lib_div::debug('create folders');
 				mkdir(dirname($output['absolute']),0777,true);
 			}
 			$this->pdfTemplate->writeAndClose($output['absolute']);

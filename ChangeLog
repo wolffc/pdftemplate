@@ -1,0 +1,9 @@
+
+Tue Sep 30 12:50:55 GMT 2014 Christian Wolff <cwolff@aer.de>
+RELEASE: Version 1.0.1
+
+Tue Sep 30 14:50:35 2014 +0200 Christian Wolff <cwolff@aer.de> 
+Updated version Requirements
+
+Tue Sep 30 14:49:07 2014 +0200 Christian Wolff <cwolff@aer.de> 
+Removed Debug code as this debug code would crash in Typo3 6.2
