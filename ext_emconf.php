@@ -35,7 +35,7 @@ this can be done via a cObject with Typoscript or via an Extbase Class.
 		'depends' => array(
 			'extbase' => '1.3',
 			'fluid' => '1.3',
-			'typo3' => '4.5',
+			'typo3' => '4.5.0-6.2.99',
 		),
 		'conflicts' => array(
 		),
